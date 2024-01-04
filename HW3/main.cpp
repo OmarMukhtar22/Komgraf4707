@@ -1,77 +1,71 @@
-#include <iostream>
-#include <math.h>
-#include <GL/glut.h>
+#include<GL/glut.h>
+#include<stdlib.h>
+#include<stdio.h>
 
-using namespace std;
+float x1,x2,y1,y2;
 
-// Fungsi untuk menggambar titik
-void drawPixel(int x, int y) {
-    glBegin(GL_POINTS);
-    glVertex2i(x, y);
-    glEnd();
+// Fungsi untuk menampilkan garis menggunakan algoritma DDA
+void display(void){
+	float dy,dx,step,x,y,k,Xin,Yin;
+	dx=x2-x1;
+	dy=y2-y1;
+
+// Menentukan langkah iterasi berdasarkan perbedaan absolut antara dx dan dy
+	if(abs(dx)> abs(dy)){
+		step = abs(dx);
+	}else
+		step = abs(dy);
+
+// Menentukan nilai pertambahan x dan y setiap iterasi
+	Xin = dx/step;
+	Yin = dy/step;
+	x= x1;
+	y=y1;
+
+// Menggambar titik awal garis
+	glBegin(GL_POINTS);
+	glVertex2i(x*5,y*5);
+	glEnd();
+
+// Melakukan iterasi untuk menggambar garis
+	for (k=1 ;k<=step;k++){
+		x= x + Xin;
+		y= y + Yin;
+
+// Menggambar titik pada garis
+	glBegin(GL_POINTS);
+	glVertex2i(x*5,y*5);
+	glEnd();
+}
+glFlush();
 }
 
-// Fungsi DDA untuk menggambar garis
-void DDA(int x0, int y0, int x1, int y1) {
-    float dx, dy, m, x, y;
-    int steps;
-
-    // Menentukan delta x dan delta y
-    dx = float(x1 - x0);
-    dy = float(y1 - y0);
-
-    // Menentukan nilai m (gradient)
-    m = dy / dx;
-
-    // Inisialisasi titik awal (x, y)
-    x = x0;
-    y = y0;
-
-    // Menentukan jumlah langkah
-    if (dx >= dy) {
-        steps = dx;
-    } else {
-        steps = dy;
-    }
-
-    // Menghitung perubahan x dan y pada setiap langkah
-    float xInc = dx / steps;
-    float yInc = dy / steps;
-
-    // Mencetak titik-titik dalam garis
-    for (int i = 0; i <= steps; i++) {
-        drawPixel(round(x), round(y));
-        x += xInc;
-        y += yInc;
-    }
-
-    glFlush();
-}
-
-// Fungsi untuk menampilkan garis
-void display() {
-	glColor3f(1.0,1.0,1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glutSwapBuffers();
-    int x0, y0, x1, y1;
-
-    DDA(x0, y0, x1, y1);
-}
-
-// Fungsi inisialisasi OpenGL
-void init() {
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glMatrixMode(GL_PROJECTION);
-    gluOrtho2D(0, 640, 0, 480);
+// Fungsi untuk inisialisasi pengaturan tampilan OpenGL
+void init(void){
+	glClearColor(0.7,0.7,0.7,0.7);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(-100,100,-100,100);
 }
 
 int main(int argc, char** argv) {
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(720, 480);
-    glutCreateWindow("DDA Line Drawing Algorithm");
-    init();
-    glutDisplayFunc(display);
-    glutMainLoop();
-    return 0;
+printf("Masukkan nilai x1 : ");
+scanf("%f",&x1);
+printf("Masukkan nilai y1 : ");
+scanf("%f",&y1);
+printf("Masukkan nilai x2 : ");
+scanf("%f",&x2);
+printf("Masukkan nilai y2 : ");
+scanf("%f",&y2);
+
+glutInit(&argc, argv);
+glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);
+glutInitWindowSize (500, 500);
+glutInitWindowPosition (100,100);
+glutCreateWindow ("DDA Line Algorithm");
+init();
+glutDisplayFunc(display);
+glutMainLoop();
+
+return 0;
 }
