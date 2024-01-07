@@ -1,84 +1,106 @@
-#include <iostream>
+#include <gl/glut.h>
+#include <stdio.h>
 
-/* run this program using the console pauser or add your own getch, system("pause") or input loop */
-#include <iostream>
-#include <GL\freeglut.h>
-#include <GL\glut.h>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
+int x0, y0, xend, yend;
 
-
-using namespace std;
-
-void tampilan(void)
-{
-	glClearColor(1.0, 1.0, 0.0, 0.0); //set warna background 
-	glMatrixMode(GL_PROJECTION); //set mode matriks yang digunakan 
-	gluOrtho2D(0.0, 300.0, 0.0, 300.0); // set ukuran viewing window
+void myInit() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glMatrixMode(GL_PROJECTION);
+    gluOrtho2D(0, 10, 0, 10);
 }
-void aturPixel (GLint x, GLint y) {
+
+void draw_pixel(int x, int y) {
     glBegin(GL_POINTS);
     glVertex2i(x, y);
-    glFlush();
     glEnd();
 }
 
-void garisbresenham(GLint x0, GLint y0, GLint xEnd, GLint yEnd) {
-	//hitung dx dan dy
-	GLint dx = (float)fabs((float)xEnd - x0);
-    GLint dy = (float)fabs((float)yEnd - y0);
-    GLint p = 2 * (dy - dx);
-   	GLint duady = 2 * dy;
-    GLint duadydx = 2 * (dy - dx);
-    GLint x,y;
-    
-    if (x0 > xEnd) {
-        x = xEnd;
-        y = yEnd;
-        xEnd=x;
-    } else {
-        x = x0;
-        y = y0;
+void gambarGaris(int x0, int xend, int y0, int yend) {
+    int dx, dy, i, point;
+    int incx, incy, inc1, inc2;
+    int x, y;
+
+    dx = xend - x0;
+    dy = yend - y0;
+
+    incx = 1;
+    if (dx < 0) {
+        incx = -1;
+        dx = -dx;
     }
-	
-	aturPixel(x, y);
-    
-    while (y < yEnd) {
-        y++;
-        if (p > 0) {
-            p += duady;
-        } else {
-            x++;
-            p += duadydx;
+    incy = 1;
+    if (dy < 0) {
+        incy = -1;
+        dy = -dy;
+    }
+
+    x = x0;
+    y = y0;
+
+    if (dx > dy) {
+        point = 2 * dy - dx;
+        inc1 = 2 * (dy - dx);
+        inc2 = 2 * dy;
+
+        for (i = 0; i < dx; i++) {
+            x += incx;
+            if (point >= 0) {
+                y += incy;
+                point += inc1;
+            } else {
+                point += inc2;
+            }
         }
-        aturPixel(x, y);
+    } else {
+        point = 2 * dx - dy;
+        inc1 = 2 * (dx - dy);
+        inc2 = 2 * dx;
+
+        for (i = 0; i < dy; i++) {
+            y += incy;
+            if (point >= 0) {
+                x += incx;
+                point += inc1;
+            } else {
+                point += inc2;
+            }
+        }
     }
 }
 
-void gambarGaris(void){
-	glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(1.0, 1.0, 0.0);
-    glPointSize(5.0);
-    GLint  x0 = 3;
-    GLint  y0 = 0;
-    GLint  xEnd = 3;
-    GLint  yEnd = 6;
-    glutSwapBuffers(); //swap buffer 
-	
-	garisbresenham(x0, y0, xEnd, yEnd);
+void myDisplay() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1.0, 1.0, 1.0); 
+    glBegin(GL_LINES);
+    glVertex2i(x0, y0);
+    glVertex2i(xend, yend);
+    glEnd();
+    gambarGaris(x0, xend, y0, yend);
+    glFlush();
 }
 
-int main(int argc, char** argv) {
-	
-	glutInit(&argc, argv);
+
+
+int main(int argc, char **argv) {
+    printf("Masukkan koordinat x0: ");
+    scanf("%d", &x0);
+    printf("Masukkan koordinat y0: ");
+    scanf("%d", &y0);
+    printf("Masukkan koordinat xend: ");
+    scanf("%d", &xend);
+    printf("Masukkan koordinat yend: ");
+    scanf("%d", &yend);
+
+    glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(720, 480);
-    glutCreateWindow("Bresenham Line Drawing Algorithm");
-    tampilan();
-    glutDisplayFunc(gambarGaris);
+    glutInitWindowSize(500, 500);
+    glutInitWindowPosition(0, 0);
+    glutCreateWindow("Bresenham Algorithm Line Drawing");
+    myInit();
+
+    glutDisplayFunc(myDisplay);
     glutMainLoop();
 
-	return 0;
+    return 0;
 }
